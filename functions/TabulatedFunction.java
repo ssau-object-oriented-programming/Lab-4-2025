@@ -1,8 +1,16 @@
 package functions;
 
-public class TabulatedFunction {
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+
+public class TabulatedFunction implements Function, Externalizable {
     private FunctionPoint[] points;
     private int pointsCount;
+    
+    public TabulatedFunction() {
+    }
     
     public TabulatedFunction(double leftX, double rightX, int pointsCount) {
         this.pointsCount = pointsCount;
@@ -60,6 +68,41 @@ public class TabulatedFunction {
         }
         
         return Double.NaN;
+    }
+
+    public TabulatedFunction(FunctionPoint[] sourcePoints) {
+        if (sourcePoints == null || sourcePoints.length < 2) {
+            throw new IllegalArgumentException();
+        }
+        for (int i = 1; i < sourcePoints.length; i++) {
+            if (sourcePoints[i - 1].getX() >= sourcePoints[i].getX()) {
+                throw new IllegalArgumentException();
+            }
+        }
+        this.pointsCount = sourcePoints.length;
+        this.points = new FunctionPoint[Math.max(4, pointsCount * 2)];
+        for (int i = 0; i < pointsCount; i++) {
+            this.points[i] = new FunctionPoint(sourcePoints[i]);
+        }
+    }
+    
+    public void writeExternal(ObjectOutput out) throws IOException {
+        out.writeInt(pointsCount);
+        for (int i = 0; i < pointsCount; i++) {
+            out.writeDouble(points[i].getX());
+            out.writeDouble(points[i].getY());
+        }
+    }
+
+    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+        int n = in.readInt();
+        this.pointsCount = n;
+        this.points = new FunctionPoint[Math.max(4, n * 2)];
+        for (int i = 0; i < n; i++) {
+            double x = in.readDouble();
+            double y = in.readDouble();
+            this.points[i] = new FunctionPoint(x, y);
+        }
     }
     
     public int getPointsCount() {
