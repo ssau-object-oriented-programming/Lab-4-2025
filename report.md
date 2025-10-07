@@ -41,6 +41,7 @@
 - `Cos` — косинус
 - `Exp` — экспонента
 - `Log` — натуральный логарифм (и по основанию при передаче параметра конструктора)
+ - `TrigonometricFunction` — обобщённая тригонометрическая функция `a·sin(bx) + c·cos(bx)`
 
 Все реализуют `Function`.
 
@@ -57,6 +58,12 @@
 - `tabulate(Function f, left, right, pointsCount)` — табулирование
 - `outputTabulatedFunction`/`inputTabulatedFunction` — бинарный формат
 - `writeTabulatedFunction`/`readTabulatedFunction` — текстовый формат
+
+
+Добавлены мета-функции в `functions.meta`:
+- `Composition(g, f)` — композиция g(f(x))
+- `Scale(f, sx, sy)` — масштабирование аргумента и значения
+- `Shift(f, shiftX, shiftY)` — сдвиг по оси x и y
 
 
 
@@ -155,5 +162,6 @@ x=1.0: src=NaN, in=0.0
 ...
 x=10.0: src=2.302585092994046, in=2.302585092994046
 ```
+
 
 
