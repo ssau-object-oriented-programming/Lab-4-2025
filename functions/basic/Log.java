@@ -21,9 +21,11 @@ public class Log implements Function {
     }
 
     public double getFunctionValue(double x) {
+        // Логарифм не определен для x <= 0
         if (x <= 0) {
             return Double.NaN;
         }
+        // Вычисляем логарифм по основанию base
         return Math.log(x) / Math.log(base);
     }
 

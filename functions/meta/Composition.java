@@ -3,8 +3,8 @@ package functions.meta;
 import functions.Function;
 
 public class Composition implements Function {
-    private Function f1;
-    private Function f2;
+    private Function f1; // внешняя функция
+    private Function f2; // внутренняя функция
 
     public Composition(Function f1, Function f2) {
         this.f1 = f1;
@@ -12,25 +12,28 @@ public class Composition implements Function {
     }
 
     public double getLeftDomainBorder() {
-        return f1.getLeftDomainBorder();
+        return f2.getLeftDomainBorder(); // область определения композиции = области определения внутренней функции
     }
 
     public double getRightDomainBorder() {
-        return f1.getRightDomainBorder();
+        return f2.getRightDomainBorder();
     }
 
     public double getFunctionValue(double x) {
-        if (x < getLeftDomainBorder() || x > getRightDomainBorder()) {
-            return Double.NaN;
-        }
-        double innerValue = f1.getFunctionValue(x);
+        // Вычисляем внутреннюю функцию
+        double innerValue = f2.getFunctionValue(x);
+
+        // Проверяем, определено ли значение внутренней функции
         if (Double.isNaN(innerValue)) {
             return Double.NaN;
         }
-        // Проверяем, что результат первой функции попадает в область определения второй
-        if (innerValue < f2.getLeftDomainBorder() || innerValue > f2.getRightDomainBorder()) {
+
+        // Проверяем, попадает ли результат в область определения внешней функции
+        if (innerValue < f1.getLeftDomainBorder() || innerValue > f1.getRightDomainBorder()) {
             return Double.NaN;
         }
-        return f2.getFunctionValue(innerValue);
+
+        // Вычисляем внешнюю функцию от результата внутренней
+        return f1.getFunctionValue(innerValue);
     }
 }

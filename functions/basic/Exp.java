@@ -12,6 +12,7 @@ public class Exp implements Function {
     }
 
     public double getFunctionValue(double x) {
+        // Экспонента всегда определена и всегда возвращает положительное число
         return Math.exp(x);
     }
 }
