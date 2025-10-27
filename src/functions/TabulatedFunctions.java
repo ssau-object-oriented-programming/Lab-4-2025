@@ -3,13 +3,14 @@ package functions;
 import java.io.*;
 
 public class TabulatedFunctions {
+    private static final double EPSILON = 1e-10;
 
     // Приватный конструктор для предотвращения создания объекта
     private TabulatedFunctions() {};
 
     public static TabulatedFunction tabulate(Function function, double leftX, double rightX, int pointsCount) throws InappropriateFunctionPointException {
 
-        if (leftX < function.getLeftDomainBorder() || rightX > function.getRightDomainBorder()) {
+        if (leftX < function.getLeftDomainBorder() - EPSILON || rightX > function.getRightDomainBorder() + EPSILON)  {
             throw new IllegalArgumentException();
         }
 
@@ -17,7 +18,12 @@ public class TabulatedFunctions {
         double interval = (Math.abs(rightX - leftX)) / (pointsCount - 1);
 
         for (int i = 0; i < pointsCount; ++i){
-            points[i] = new FunctionPoint((leftX + i * interval), function.getFunctionValue(leftX + i * interval));
+            double currentX = leftX + i * interval;
+            if (currentX < function.getLeftDomainBorder() - EPSILON ||
+                    currentX > function.getRightDomainBorder() + EPSILON) {
+                throw new IllegalArgumentException();
+            }
+            points[i] = new FunctionPoint(currentX, function.getFunctionValue(currentX));
         }
         return new ArrayTabulatedFunction(points);
     }
@@ -48,10 +54,20 @@ public class TabulatedFunctions {
 
         // Создаем массив точек
         FunctionPoint[] points = new FunctionPoint[pointsCount];
+        double prevX = Double.NEGATIVE_INFINITY;
 
         // Считываем значения координат точек
         for (int i = 0; i < pointsCount; ++i) {
-            points[i] = new FunctionPoint(dataIn.readDouble(), dataIn.readDouble());
+            double x = dataIn.readDouble();
+            double y = dataIn.readDouble();
+
+            // Проверяем упорядоченность точек с использованием эпсилона
+            if (i > 0 && x <= prevX + EPSILON) {
+                throw new IOException();
+            }
+
+            points[i] = new FunctionPoint(x, y);
+            prevX = x;
         }
 
         // Закрываем поток
@@ -93,13 +109,22 @@ public class TabulatedFunctions {
         double x, y;
         FunctionPoint points[] = new FunctionPoint[pointsCount];
 
+        double prevX = Double.NEGATIVE_INFINITY;
+
         // Считываем значения координат точек
         for(int i = 0; i < pointsCount; ++i){
             tokenizer.nextToken();
             x = tokenizer.nval;
             tokenizer.nextToken();
             y = tokenizer.nval;
+
+            // Проверяем упорядоченность точек с использованием эпсилона
+            if (i > 0 && x <= prevX + EPSILON) {
+                throw new IOException("Точки не упорядочены по возрастанию X");
+            }
+
             points[i] = new FunctionPoint(x, y);
+            prevX = x;
         }
         // Создаем и возвращаем объект табулированной функции
         return new ArrayTabulatedFunction(points);

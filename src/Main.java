@@ -10,26 +10,26 @@ public class Main {
         Function sinFunction = new Sin();
         Function cosFunction = new Cos();
 
-        // Вывод значений Sin и Cos на отрезке от 0 до π с шагом 0.1
-        System.out.println("Вывод значений Sin и Cos на отрезке от 0 до π с шагом 0.1:");
-        printFunctionValues(sinFunction, 0, Math.PI, 0.1);
-        printFunctionValues(cosFunction, 0, Math.PI, 0.1);
+        // Вывод значений Sin и Cos на отрезке от 0 до π
+        System.out.println("Вывод значений Sin и Cos на отрезке от 0 до π:");
+        printFunctionValues(sinFunction, 0, Math.PI, Math.PI/9);
+        printFunctionValues(cosFunction, 0, Math.PI, Math.PI/9);
 
         // Табулирование Sin и Cos на отрезке от 0 до π с 10 точками
         TabulatedFunction sinTabulated = TabulatedFunctions.tabulate(sinFunction, 0,  Math.PI, 10);
         TabulatedFunction cosTabulated = TabulatedFunctions.tabulate(cosFunction, 0,  Math.PI, 10);
 
-        // Вывод значений табулированных Sin и Cos на отрезке от 0 до π с шагом 0.1
-        System.out.println("Вывод значений табулированных Sin и Cos на отрезке от 0 до π с шагом 0.1:");
-        printTabulatedFunctionValues(sinTabulated, 0,  Math.PI, 0.1);
-        printTabulatedFunctionValues(cosTabulated, 0,  Math.PI, 0.1);
+        // Вывод значений табулированных Sin и Cos на отрезке от 0 до π
+        System.out.println("Вывод значений табулированных Sin и Cos на отрезке от 0 до π:");
+        printTabulatedFunctionValues(sinTabulated, 0,  Math.PI, Math.PI/9);
+        printTabulatedFunctionValues(cosTabulated, 0,  Math.PI, Math.PI/9);
 
         // Создание функции, являющейся суммой квадратов табулированных Sin и Cos
         Function sumOfSquares = Functions.sum(Functions.power(sinTabulated, 2), Functions.power(cosTabulated, 2));
 
-        // Вывод значений суммы квадратов на отрезке от 0 до π с шагом 0.1
-        System.out.println("Вывод значений суммы квадратов на отрезке от 0 до π с шагом 0.1:");
-        printFunctionValues(sumOfSquares, 0,  Math.PI, 0.1);
+        // Вывод  значений суммы квадратов на отрезке от 0 до π
+        System.out.println("Вывод значений суммы квадратов на отрезке от 0 до π:");
+        printFunctionValues(sumOfSquares, 0,  Math.PI, Math.PI/9);
 
 
 
