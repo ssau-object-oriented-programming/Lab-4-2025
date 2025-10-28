@@ -1,53 +1,31 @@
 package functions;
 
+import functions.meta.*;
+
 public class Functions {
-    public static Function sum(final Function a, final Function b) {
-        return new Function() {
-            public double getLeftDomainBorder() {
-                return Math.max(a.getLeftDomainBorder(), b.getLeftDomainBorder());
-            }
-
-            public double getRightDomainBorder() {
-                return Math.min(a.getRightDomainBorder(), b.getRightDomainBorder());
-            }
-
-            public double getFunctionValue(double x) {
-                return a.getFunctionValue(x) + b.getFunctionValue(x);
-            }
-        };
+    private Functions() {}
+    
+    public static Function shift(Function f, double shiftX, double shiftY) {
+        return new Shift(f, shiftX, shiftY);
     }
-
-    public static Function mult(final Function a, final Function b) {
-        return new Function() {
-            public double getLeftDomainBorder() {
-                return Math.max(a.getLeftDomainBorder(), b.getLeftDomainBorder());
-            }
-
-            public double getRightDomainBorder() {
-                return Math.min(a.getRightDomainBorder(), b.getRightDomainBorder());
-            }
-
-            public double getFunctionValue(double x) {
-                return a.getFunctionValue(x) * b.getFunctionValue(x);
-            }
-        };
+    
+    public static Function scale(Function f, double scaleX, double scaleY) {
+        return new Scale(f, scaleX, scaleY);
     }
-
-    public static Function power(final Function f, final int p) {
-        return new Function() {
-            public double getLeftDomainBorder() {
-                return f.getLeftDomainBorder();
-            }
-
-            public double getRightDomainBorder() {
-                return f.getRightDomainBorder();
-            }
-
-            public double getFunctionValue(double x) {
-                return Math.pow(f.getFunctionValue(x), p);
-            }
-        };
+    
+    public static Function power(Function f, double power) {
+        return new Power(f, power);
+    }
+    
+    public static Function sum(Function f1, Function f2) {
+        return new Sum(f1, f2);
+    }
+    
+    public static Function mult(Function f1, Function f2) {
+        return new Mult(f1, f2);
+    }
+    
+    public static Function composition(Function f1, Function f2) {
+        return new Composition(f1, f2);
     }
 }
-
-

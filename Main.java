@@ -1,4 +1,5 @@
 import functions.TabulatedFunction;
+import functions.ArrayTabulatedFunction;
 import functions.FunctionPoint;
 import functions.Functions;
 import functions.TabulatedFunctions;
@@ -10,8 +11,8 @@ import functions.basic.Log;
 import java.io.*;
 
 public class Main {
-    public static void main(String[] args) {
-        TabulatedFunction function = new TabulatedFunction(0, 4, 5);
+    public static void main(String[] args){
+        TabulatedFunction function = new ArrayTabulatedFunction(0, 4, 5);
         
         function.setPointY(0, 0);
         function.setPointY(1, 1);
@@ -117,7 +118,7 @@ public class Main {
         }
 
         try {
-            TabulatedFunction composed = TabulatedFunctions.tabulate(new Log(), 1e-6, 10, 11);
+            TabulatedFunction composed = TabulatedFunctions.tabulate(Functions.composition(new Log(), new Exp()), 0, 10, 11);
             ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("obj_ser.bin"));
             oos.writeObject(composed);
             oos.close();

@@ -1,7 +1,8 @@
 package functions.basic;
 
-public class Sin extends TrigonometricFunction {
+public class Tan extends TrigonometricFunction {
     public double getFunctionValue(double x) {
-        return Math.sin(x);
+        return Math.tan(x);
     }
 }
+
