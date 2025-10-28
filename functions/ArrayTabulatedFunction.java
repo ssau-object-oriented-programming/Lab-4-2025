@@ -2,6 +2,7 @@ package functions;
 import java.io.*;
 
 public class ArrayTabulatedFunction implements TabulatedFunction {
+    private static final double E = 1e-10;
     private FunctionPoint[] points;
     private int PointsCount;
 
@@ -56,11 +57,11 @@ public class ArrayTabulatedFunction implements TabulatedFunction {
     }
 
     public double getFunctionValue(double x) {
-        if (x >= getLeftDomainBorder() && x <= getRightDomainBorder()) {
+        if (x >= getLeftDomainBorder() - E && x <= getRightDomainBorder() + E) {
             for (int i = 0; i < PointsCount; ++i) {
-                if (x == points[i].getX())
+                if (Math.abs(x - points[i].getX()) < E)
                     return points[i].getY();
-                if (x > points[i].getX() && x <= points[i + 1].getX()) {
+                if (x > points[i].getX() && x <= points[i + 1].getX() + E) {
                     double x1 = points[i].getX();
                     double y1 = points[i].getY();
                     double x2 = points[i + 1].getX();
@@ -86,12 +87,12 @@ public class ArrayTabulatedFunction implements TabulatedFunction {
         if (index < 0 || index >= PointsCount)
             throw new FunctionPointIndexOutOfBoundsException("Индекс выходит за границы набора точек");
         if ((index == 0 || index == PointsCount - 1)) {
-            if (points[index].getX() != point.getX())
+            if (Math.abs(points[index].getX() - point.getX()) > E)
                 throw new InappropriateFunctionPointException("x выходит за границы определения функции");
             points[index] = new FunctionPoint(point);
         }
         else
-            if (point.getX() > points[index - 1].getX() && point.getX() < points[index + 1].getX())
+            if (point.getX() > points[index - 1].getX() + E && point.getX() < points[index + 1].getX() - E)
                 points[index] = new FunctionPoint(point);
             else
                 throw new InappropriateFunctionPointException("x выходит за границы определения соседних точек");
@@ -134,13 +135,13 @@ public class ArrayTabulatedFunction implements TabulatedFunction {
 
     public void addPoint(FunctionPoint point) throws InappropriateFunctionPointException {
         int index = 0;
-        if (point.getX() > points[PointsCount - 1].getX())
+        if (point.getX() > points[PointsCount - 1].getX() + E)
             index = PointsCount;
         else {
-            if (point.getX() == points[index].getX())
+            if (Math.abs(point.getX() - points[index].getX()) < E)
                     throw new InappropriateFunctionPointException("Точка c такой координатой  x определена");
-            while (point.getX() >= points[index].getX()) {
-                if (point.getX() == points[index].getX())
+            while (point.getX() >= points[index].getX() - E) {
+                if (Math.abs(point.getX() - points[index].getX()) < E)
                     throw new InappropriateFunctionPointException("Точка c такой координатой  x определена");
                 ++index;
             }

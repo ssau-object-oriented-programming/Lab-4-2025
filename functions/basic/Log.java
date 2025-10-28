@@ -2,6 +2,7 @@ package functions.basic;
 import functions.Function;
 
 public class Log implements Function {
+    private static final double E = 1e-10;
     private double a;
 
     public Log(double a) {
@@ -9,7 +10,7 @@ public class Log implements Function {
     }
 
     public double getLeftDomainBorder() {
-        return Double.NEGATIVE_INFINITY;
+        return 0;
     }
 
     public double getRightDomainBorder() {
@@ -17,7 +18,7 @@ public class Log implements Function {
     }
 
     public double getFunctionValue(double x) {
-        if (x <= 0 )
+        if (x < -E)
             return Double.NaN;
         return Math.log(x) / Math.log(a);
     }

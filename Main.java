@@ -13,7 +13,7 @@ public class Main {
         System.out.println();
         for (double i = 0; i < Math.PI; i += 0.1)
             System.out.printf("sin %.2f = %.2f\n", i, f2.getFunctionValue(i));
-            System.out.println();
+        System.out.println();
         Function f3 = Functions.sum(Functions.power(f1, 2), Functions.power(f2, 2));
         for (double i = 0; i < Math.PI; i += 0.1)
             System.out.printf("sin^2 %.2f + cos^2 %.2f = %.2f\n", i, i, f3.getFunctionValue(i));

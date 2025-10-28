@@ -1,7 +1,8 @@
 package functions;
 import java.io.*;
 
-public class LinkedListTabulatedFunction implements TabulatedFunction {
+public class LinkedListTabulatedFunction implements TabulatedFunction, Externalizable {
+    private static final double E = 1e-10;
     private FunctionNode head;
     private FunctionNode lastNode;
     private int lastindex = 0;
@@ -176,20 +177,25 @@ public class LinkedListTabulatedFunction implements TabulatedFunction {
     public double getRightDomainBorder() {
         return head.prev.point.getX();
     }
-
+    
     public double getFunctionValue(double x) {
-        if (x >= getLeftDomainBorder() && x <= getRightDomainBorder()) {
+        if (x >= getLeftDomainBorder() - E && x <= getRightDomainBorder() + E) {
             FunctionNode node = head;
             for (int i = 0; i < size; ++i, node = node.next) {
-                if (x == node.point.getX())
+                if (Math.abs(x - node.point.getX()) < E)
                     return node.point.getY();
-                if (x > node.point.getX() && x <= node.next.point.getX()) {
+                if (i < size - 1 && x > node.point.getX() && x < node.next.point.getX()) {
                     double x1 = node.point.getX();
                     double y1 = node.point.getY();
                     double x2 = node.next.point.getX();
                     double y2 = node.next.point.getY();
+                    if (Double.isInfinite(y1) || Double.isInfinite(y2) || Double.isNaN(y1) || Double.isNaN(y2))
+                        return Double.NaN;
                     return ((x - x1) * (y2 - y1) / (x2 - x1)) + y1;
                 }
+            }
+            if (Math.abs(x - getRightDomainBorder()) < E) {
+                return head.prev.point.getY(); // значение последней точки
             }
         }
         return Double.NaN;
@@ -209,12 +215,12 @@ public class LinkedListTabulatedFunction implements TabulatedFunction {
         if (index < 0 || index >= size)
             throw new FunctionPointIndexOutOfBoundsException("Индекс выходит за границы набора точек");
         if ((index == 0 || index == size - 1)) {
-            if (getNodeByIndex(index).point.getX() != point.getX())
+            if (Math.abs(getNodeByIndex(index).point.getX() - point.getX()) > E)
                 throw new InappropriateFunctionPointException("x выходит за границы определения функции");
             getNodeByIndex(index).point = new FunctionPoint(point);
         }
         else
-            if (point.getX() > getNodeByIndex(index).prev.point.getX() && point.getX() < getNodeByIndex(index).next.point.getX()) {
+            if (point.getX() > getNodeByIndex(index).prev.point.getX() + E && point.getX() < getNodeByIndex(index).next.point.getX() - E) {
                 getNodeByIndex(index).point = new FunctionPoint(point);
             }
             else
@@ -257,13 +263,13 @@ public class LinkedListTabulatedFunction implements TabulatedFunction {
 
     public void addPoint(FunctionPoint point) throws InappropriateFunctionPointException {
         int index = 0;
-        if (point.getX() > head.prev.point.getX())
+        if (point.getX() > head.prev.point.getX() + E)
             index = size;
         else {
-            if (point.getX() == getNodeByIndex(index).point.getX())
+            if (Math.abs(point.getX() - getNodeByIndex(index).point.getX()) < E)
                     throw new InappropriateFunctionPointException("Точка c такой координатой  x определена");
-            while (point.getX() >= getNodeByIndex(index).point.getX()) {
-                if (point.getX() == getNodeByIndex(index).point.getX())
+            while (point.getX() >= getNodeByIndex(index).point.getX() - E) {
+                if (Math.abs(point.getX() - getNodeByIndex(index).point.getX()) < E)
                     throw new InappropriateFunctionPointException("Точка c такой координатой  x определена");
                 ++index;
             }

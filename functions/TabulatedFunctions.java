@@ -2,19 +2,24 @@ package functions;
 import java.io.*;
 
 public class TabulatedFunctions {
+    private static final double E = 1e-10;
     public TabulatedFunctions() {}
 
     public static TabulatedFunction tabulate(Function function, double leftX, double rightX, int pointsCount) {
-        if (leftX >= rightX)
+        if (leftX >= rightX - E)
             throw new IllegalArgumentException("Лквая граница юолбше или равна правой границе");
         if (pointsCount < 2)
             throw new IllegalArgumentException("Точек меньше двух");
-        if (leftX < function.getLeftDomainBorder() || rightX > function.getRightDomainBorder())
+        if (leftX < function.getLeftDomainBorder() - E || rightX > function.getRightDomainBorder() + E)
             throw new IllegalArgumentException("Границы выходят за область отределения функции");
         FunctionPoint[] points = new FunctionPoint[pointsCount];
         double step = (rightX - leftX) / (pointsCount - 1);
-        for (int i = 0; i < pointsCount; ++ i, leftX += step)
+        for (int i = 0; i < pointsCount; ++ i, leftX += step) {
+            double x = leftX + i * step;
+            if (Math.abs(x) < E)
+                x = 0;
             points[i] = new FunctionPoint(leftX, function.getFunctionValue(leftX));
+        }
         return new LinkedListTabulatedFunction(points);
     }
 
