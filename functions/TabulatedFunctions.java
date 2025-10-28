@@ -6,7 +6,14 @@ public class TabulatedFunctions {
     private TabulatedFunctions() {}
     
     public static TabulatedFunction tabulate(Function f, double leftX, double rightX, int pointsCount) {
-        if (leftX < f.getLeftDomainBorder() || rightX > f.getRightDomainBorder()) {
+        if (pointsCount < 2) {
+            throw new IllegalArgumentException();
+        }
+        if (!(rightX > leftX)) {
+            throw new IllegalArgumentException();
+        }
+        double eps = Math.ulp(1.0);
+        if (leftX + eps < f.getLeftDomainBorder() || rightX - eps > f.getRightDomainBorder()) {
             throw new IllegalArgumentException();
         }
         double[] values = new double[pointsCount];
@@ -49,13 +56,29 @@ public class TabulatedFunctions {
     }
 
     public static TabulatedFunction readTabulatedFunction(Reader in) throws IOException {
-        BufferedReader br = new BufferedReader(in);
-        int n = Integer.parseInt(br.readLine().trim());
-        FunctionPoint[] pts = br.lines()
-                .limit(n)
-                .map(line -> line.trim().split("\\s+"))
-                .map(parts -> new FunctionPoint(Double.parseDouble(parts[0]), Double.parseDouble(parts[1])))
-                .toArray(FunctionPoint[]::new);
+        StreamTokenizer st = new StreamTokenizer(in);
+        st.resetSyntax();
+        st.wordChars('0', '9');
+        st.wordChars('-', '-');
+        st.wordChars('+', '+');
+        st.wordChars('.', '.');
+        st.whitespaceChars(0, ' ');
+        int t = st.nextToken();
+        if (t != StreamTokenizer.TT_WORD) {
+            throw new IOException();
+        }
+        int n = Integer.parseInt(st.sval);
+        if (n < 2) {
+            throw new IOException();
+        }
+        FunctionPoint[] pts = new FunctionPoint[n];
+        for (int i = 0; i < n; i++) {
+            if (st.nextToken() != StreamTokenizer.TT_WORD) throw new IOException();
+            double x = Double.parseDouble(st.sval);
+            if (st.nextToken() != StreamTokenizer.TT_WORD) throw new IOException();
+            double y = Double.parseDouble(st.sval);
+            pts[i] = new FunctionPoint(x, y);
+        }
         return new ArrayTabulatedFunction(pts);
     }
 }

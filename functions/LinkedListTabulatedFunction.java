@@ -11,11 +11,18 @@ public class LinkedListTabulatedFunction implements TabulatedFunction, Serializa
     
     private Node head;
     private int pointsCount;
+    private static final double EPS = Math.ulp(1.0);
     
     public LinkedListTabulatedFunction() {
     }
     
     public LinkedListTabulatedFunction(double leftX, double rightX, int pointsCount) {
+        if (pointsCount < 2) {
+            throw new IllegalArgumentException();
+        }
+        if (!(rightX > leftX)) {
+            throw new IllegalArgumentException();
+        }
         this.pointsCount = pointsCount;
         double step = (rightX - leftX) / (pointsCount - 1);
         head = new Node();
@@ -33,6 +40,12 @@ public class LinkedListTabulatedFunction implements TabulatedFunction, Serializa
     }
     
     public LinkedListTabulatedFunction(double leftX, double rightX, double[] values) {
+        if (values == null || values.length < 2) {
+            throw new IllegalArgumentException();
+        }
+        if (!(rightX > leftX)) {
+            throw new IllegalArgumentException();
+        }
         this.pointsCount = values.length;
         double step = (rightX - leftX) / (pointsCount - 1);
         head = new Node();
@@ -74,6 +87,9 @@ public class LinkedListTabulatedFunction implements TabulatedFunction, Serializa
     }
     
     private Node getNodeByIndex(int index) {
+        if (index < 0 || index >= pointsCount) {
+            throw new IndexOutOfBoundsException();
+        }
         Node current = head;
         for (int i = 0; i < index; i++) {
             current = current.next;
@@ -93,13 +109,14 @@ public class LinkedListTabulatedFunction implements TabulatedFunction, Serializa
         if (x < getLeftDomainBorder() || x > getRightDomainBorder()) {
             return Double.NaN;
         }
-        if (x == getLeftDomainBorder()) {
-            return head.data.getY();
-        }
-        if (x == getRightDomainBorder()) {
-            return head.prev.data.getY();
-        }
         Node current = head;
+        for (int i = 0; i < pointsCount; i++) {
+            if (Math.abs(x - current.data.getX()) <= EPS) {
+                return current.data.getY();
+            }
+            current = current.next;
+        }
+        current = head;
         int count = 0;
         while (count < pointsCount - 1) {
             double x1 = current.data.getX();
@@ -107,6 +124,9 @@ public class LinkedListTabulatedFunction implements TabulatedFunction, Serializa
             if (x >= x1 && x <= x2) {
                 double y1 = current.data.getY();
                 double y2 = current.next.data.getY();
+                if (Double.isNaN(y1) || Double.isNaN(y2)) {
+                    return Double.NaN;
+                }
                 return y1 + (y2 - y1) * (x - x1) / (x2 - x1);
             }
             current = current.next;
@@ -126,11 +146,11 @@ public class LinkedListTabulatedFunction implements TabulatedFunction, Serializa
     public void setPoint(int index, FunctionPoint point) {
         Node node = getNodeByIndex(index);
         double newX = point.getX();
-        if (index > 0 && newX <= node.prev.data.getX()) {
-            return;
+        if (index > 0 && newX - EPS <= node.prev.data.getX()) {
+            throw new IllegalArgumentException();
         }
-        if (index < pointsCount - 1 && newX >= node.next.data.getX()) {
-            return;
+        if (index < pointsCount - 1 && newX + EPS >= node.next.data.getX()) {
+            throw new IllegalArgumentException();
         }
         node.data = new FunctionPoint(point);
     }
@@ -141,11 +161,11 @@ public class LinkedListTabulatedFunction implements TabulatedFunction, Serializa
     
     public void setPointX(int index, double x) {
         Node node = getNodeByIndex(index);
-        if (index > 0 && x <= node.prev.data.getX()) {
-            return;
+        if (index > 0 && x - EPS <= node.prev.data.getX()) {
+            throw new IllegalArgumentException();
         }
-        if (index < pointsCount - 1 && x >= node.next.data.getX()) {
-            return;
+        if (index < pointsCount - 1 && x + EPS >= node.next.data.getX()) {
+            throw new IllegalArgumentException();
         }
         node.data.setX(x);
     }
@@ -159,8 +179,11 @@ public class LinkedListTabulatedFunction implements TabulatedFunction, Serializa
     }
     
     public void deletePoint(int index) {
+        if (index < 0 || index >= pointsCount) {
+            throw new IndexOutOfBoundsException();
+        }
         if (pointsCount <= 2) {
-            return;
+            throw new IllegalStateException();
         }
         Node node = getNodeByIndex(index);
         if (node == head) {
@@ -172,6 +195,13 @@ public class LinkedListTabulatedFunction implements TabulatedFunction, Serializa
     }
     
     public void addPoint(FunctionPoint point) {
+        Node currentCheck = head;
+        for (int i = 0; i < pointsCount; i++) {
+            if (Math.abs(currentCheck.data.getX() - point.getX()) <= EPS) {
+                throw new IllegalArgumentException();
+            }
+            currentCheck = currentCheck.next;
+        }
         Node current = head;
         int count = 0;
         while (count < pointsCount && current.data.getX() < point.getX()) {

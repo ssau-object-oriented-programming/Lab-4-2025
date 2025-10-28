@@ -5,11 +5,18 @@ import java.io.*;
 public class ArrayTabulatedFunction implements TabulatedFunction, Serializable {
     private FunctionPoint[] points;
     private int pointsCount;
+    private static final double EPS = Math.ulp(1.0);
     
     public ArrayTabulatedFunction() {
     }
     
     public ArrayTabulatedFunction(double leftX, double rightX, int pointsCount) {
+        if (pointsCount < 2) {
+            throw new IllegalArgumentException();
+        }
+        if (!(rightX > leftX)) {
+            throw new IllegalArgumentException();
+        }
         this.pointsCount = pointsCount;
         this.points = new FunctionPoint[pointsCount * 2];
         double step = (rightX - leftX) / (pointsCount - 1);
@@ -20,6 +27,12 @@ public class ArrayTabulatedFunction implements TabulatedFunction, Serializable {
     }
     
     public ArrayTabulatedFunction(double leftX, double rightX, double[] values) {
+        if (values == null || values.length < 2) {
+            throw new IllegalArgumentException();
+        }
+        if (!(rightX > leftX)) {
+            throw new IllegalArgumentException();
+        }
         this.pointsCount = values.length;
         this.points = new FunctionPoint[pointsCount * 2];
         double step = (rightX - leftX) / (pointsCount - 1);
@@ -57,11 +70,10 @@ public class ArrayTabulatedFunction implements TabulatedFunction, Serializable {
         if (x < getLeftDomainBorder() || x > getRightDomainBorder()) {
             return Double.NaN;
         }
-        if (x == getLeftDomainBorder()) {
-            return points[0].getY();
-        }
-        if (x == getRightDomainBorder()) {
-            return points[pointsCount - 1].getY();
+        for (int i = 0; i < pointsCount; i++) {
+            if (Math.abs(x - points[i].getX()) <= EPS) {
+                return points[i].getY();
+            }
         }
         for (int i = 0; i < pointsCount - 1; i++) {
             double x1 = points[i].getX();
@@ -69,6 +81,9 @@ public class ArrayTabulatedFunction implements TabulatedFunction, Serializable {
             if (x >= x1 && x <= x2) {
                 double y1 = points[i].getY();
                 double y2 = points[i + 1].getY();
+                if (Double.isNaN(y1) || Double.isNaN(y2)) {
+                    return Double.NaN;
+                }
                 return y1 + (y2 - y1) * (x - x1) / (x2 - x1);
             }
         }
@@ -80,51 +95,77 @@ public class ArrayTabulatedFunction implements TabulatedFunction, Serializable {
     }
     
     public FunctionPoint getPoint(int index) {
+        if (index < 0 || index >= pointsCount) {
+            throw new IndexOutOfBoundsException();
+        }
         return new FunctionPoint(points[index]);
     }
     
     public void setPoint(int index, FunctionPoint point) {
-        double newX = point.getX();
-        if (index > 0 && newX <= points[index - 1].getX()) {
-            return;
+        if (index < 0 || index >= pointsCount) {
+            throw new IndexOutOfBoundsException();
         }
-        if (index < pointsCount - 1 && newX >= points[index + 1].getX()) {
-            return;
+        double newX = point.getX();
+        if (index > 0 && newX - EPS <= points[index - 1].getX()) {
+            throw new IllegalArgumentException();
+        }
+        if (index < pointsCount - 1 && newX + EPS >= points[index + 1].getX()) {
+            throw new IllegalArgumentException();
         }
         points[index] = new FunctionPoint(point);
     }
     
     public double getPointX(int index) {
+        if (index < 0 || index >= pointsCount) {
+            throw new IndexOutOfBoundsException();
+        }
         return points[index].getX();
     }
     
     public void setPointX(int index, double x) {
-        if (index > 0 && x <= points[index - 1].getX()) {
-            return;
+        if (index < 0 || index >= pointsCount) {
+            throw new IndexOutOfBoundsException();
         }
-        if (index < pointsCount - 1 && x >= points[index + 1].getX()) {
-            return;
+        if (index > 0 && x - EPS <= points[index - 1].getX()) {
+            throw new IllegalArgumentException();
+        }
+        if (index < pointsCount - 1 && x + EPS >= points[index + 1].getX()) {
+            throw new IllegalArgumentException();
         }
         points[index].setX(x);
     }
     
     public double getPointY(int index) {
+        if (index < 0 || index >= pointsCount) {
+            throw new IndexOutOfBoundsException();
+        }
         return points[index].getY();
     }
     
     public void setPointY(int index, double y) {
+        if (index < 0 || index >= pointsCount) {
+            throw new IndexOutOfBoundsException();
+        }
         points[index].setY(y);
     }
     
     public void deletePoint(int index) {
+        if (index < 0 || index >= pointsCount) {
+            throw new IndexOutOfBoundsException();
+        }
         if (pointsCount <= 2) {
-            return;
+            throw new IllegalStateException();
         }
         System.arraycopy(points, index + 1, points, index, pointsCount - index - 1);
         pointsCount--;
     }
     
     public void addPoint(FunctionPoint point) {
+        for (int i = 0; i < pointsCount; i++) {
+            if (Math.abs(points[i].getX() - point.getX()) <= EPS) {
+                throw new IllegalArgumentException();
+            }
+        }
         if (pointsCount >= points.length) {
             FunctionPoint[] newPoints = new FunctionPoint[points.length * 2];
             System.arraycopy(points, 0, newPoints, 0, pointsCount);

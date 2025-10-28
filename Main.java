@@ -11,7 +11,7 @@ import functions.basic.Log;
 import java.io.*;
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args){
         TabulatedFunction function = new ArrayTabulatedFunction(0, 4, 5);
         
         function.setPointY(0, 0);
